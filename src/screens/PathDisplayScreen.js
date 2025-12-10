@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { generatePath, searchPieceInGallery } from '../api';
+import { generatePath, searchPieceInGallery, generateAIRecommendedPath } from '../api';
 import styled from 'styled-components';
 import PieceCardModal from '../components/PieceCard';
-import Sidebar from '../components/Sidebar';
 
+// --- OFF-WHITE THEME PALETTE ---
 const Container = styled.div`
-  width: 100vw;
+  width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   display: flex;
   flex-direction: column;
+  background-color: #F9F7F2;
   margin-left: 0;
   transition: margin-left 0.3s ease;
 `;
@@ -23,11 +23,12 @@ const MainContent = styled.div`
 
 const Header = styled.div`
   padding: 15px 20px;
-  background-color: #111;
-  border-bottom: 2px solid #333;
+  background-color: #F0EAD6;
+  border-bottom: 2px solid #D4C5A5;
   display: flex;
   align-items: center;
   gap: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 `;
 
 const MenuButton = styled.button`
@@ -40,6 +41,7 @@ const MenuButton = styled.button`
 
   &:hover {
     transform: scale(1.1);
+    color: #8B6B23;
   }
 
   @media (max-width: 480px) {
@@ -48,11 +50,12 @@ const MenuButton = styled.button`
 `;
 
 const HeaderTitle = styled.h2`
-  color: #C09943;
+  color: #8B6B23;
   font-size: 20px;
   font-weight: bold;
   margin: 0;
   flex: 1;
+  font-family: 'Cinzel', serif;
 
   @media (max-width: 480px) {
     font-size: 16px;
@@ -60,9 +63,9 @@ const HeaderTitle = styled.h2`
 `;
 
 const UserBadge = styled.div`
-  background-color: #333333;
-  border: 1px solid #C09943;
-  color: #C09943;
+  background-color: #FFFFFF;
+  border: 1px solid #D4C5A5;
+  color: #555555;
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -70,12 +73,8 @@ const UserBadge = styled.div`
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 0 10px rgba(192, 153, 67, 0.3);
-  }
-
-  @media (max-width: 480px) {
-    padding: 4px 8px;
-    font-size: 10px;
+    background-color: #F9F7F2;
+    box-shadow: 0 0 10px rgba(192, 153, 67, 0.2);
   }
 `;
 
@@ -86,17 +85,19 @@ const ScrollContainer = styled.div`
 `;
 
 const GalleryRow = styled.div`
-  background-color: #1E1E1E;
-  border: 1px solid #333;
+  background-color: #FFFFFF;
+  border: 1px solid #E6DCC3;
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 15px;
   border-left: 4px solid #C09943;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: #2d2d2d;
+    background-color: #FFFCF5;
     transform: translateX(3px);
+    box-shadow: 0 4px 12px rgba(192, 153, 67, 0.15);
   }
 `;
 
@@ -108,17 +109,17 @@ const GalleryHeader = styled.div`
 `;
 
 const GalleryName = styled.p`
-  color: #C09943;
-  font-size: 14px;
+  color: #8B6B23;
+  font-size: 15px;
   font-weight: bold;
   margin: 0;
 `;
 
 const CrowdBadge = styled.span`
   background-color: ${props => {
-    if (props.crowd < 20) return '#4CAF50';
-    if (props.crowd < 40) return '#FFC107';
-    return '#F44336';
+    if (props.crowd < 20) return '#6CAE75';
+    if (props.crowd < 40) return '#E2B04A';
+    return '#D65A5A';
   }};
   color: white;
   padding: 4px 8px;
@@ -128,9 +129,10 @@ const CrowdBadge = styled.span`
 `;
 
 const GalleryDesc = styled.p`
-  color: #aaa;
-  font-size: 12px;
+  color: #666666;
+  font-size: 13px;
   margin: 0 0 10px 0;
+  line-height: 1.5;
 `;
 
 const SearchRow = styled.div`
@@ -141,31 +143,27 @@ const SearchRow = styled.div`
 
 const SearchInput = styled.input`
   flex: 1;
-  background-color: #2E2E2E;
-  color: white;
+  background-color: #FAFAFA;
+  color: #333333;
   padding: 8px 10px;
-  border: 1px solid #444;
+  border: 1px solid #D4C5A5;
   border-radius: 6px;
   font-size: 12px;
 
   &::placeholder {
-    color: #777;
+    color: #AAAAAA;
   }
 
   &:focus {
     outline: none;
     border-color: #C09943;
-  }
-
-  @media (max-width: 480px) {
-    padding: 6px 8px;
-    font-size: 11px;
+    background-color: #FFFFFF;
   }
 `;
 
 const SearchButton = styled.button`
   background-color: #C09943;
-  color: #000;
+  color: white;
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
@@ -176,21 +174,12 @@ const SearchButton = styled.button`
   white-space: nowrap;
 
   &:hover {
-    box-shadow: 0 0 8px rgba(192, 153, 67, 0.5);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  @media (max-width: 480px) {
-    padding: 6px 10px;
-    font-size: 11px;
+    background-color: #A67C2E;
   }
 `;
 
 const TakeMeButton = styled.button`
-  background-color: #4CAF50;
+  background-color: #5D8AA8;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -201,16 +190,24 @@ const TakeMeButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+    background-color: #4A6E86;
+    box-shadow: 0 2px 6px rgba(93, 138, 168, 0.3);
   }
+`;
 
-  &:active {
-    transform: scale(0.95);
-  }
+const BackButton = styled.button`
+  background-color: transparent;
+  color: #C09943;
+  border: 1px solid #C09943;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
-  @media (max-width: 480px) {
-    padding: 6px 10px;
-    font-size: 11px;
+  &:hover {
+    background-color: rgba(192, 153, 67, 0.1);
   }
 `;
 
@@ -220,62 +217,18 @@ const ButtonRow = styled.div`
   margin-top: 10px;
 `;
 
-const Footer = styled.div`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 60px;
-  border-top: 1px solid #333;
-  background-color: #111;
-  gap: 10px;
-  padding: 0 10px;
-`;
-
-const FooterButton = styled.button`
-  flex: 1;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 8px 10px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-
-  &:hover {
-    background-color: rgba(192, 153, 67, 0.1);
-    color: #C09943;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  @media (max-width: 480px) {
-    font-size: 12px;
-    padding: 6px 8px;
-
-    span {
-      font-size: 16px;
-    }
-  }
-`;
-
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: #F9F7F2;
   color: #C09943;
   font-size: 18px;
 `;
 
 const Spinner = styled.div`
-  border: 4px solid #2E2E2E;
+  border: 4px solid #E6DCC3;
   border-top: 4px solid #C09943;
   border-radius: 50%;
   width: 50px;
@@ -289,46 +242,92 @@ const Spinner = styled.div`
 `;
 
 const PeriodTag = styled.span`
-  background-color: rgba(192, 153, 67, 0.2);
-  color: #C09943;
+  background-color: #EBE6D8;
+  color: #555;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 11px;
   margin-right: 5px;
+  border: 1px solid #D4C5A5;
 `;
 
-export default function PathDisplayScreen({ onBack, timePeriods, language, user, onProfileClick, onAuthClick }) {
+// --- NEW STYLES FOR VIDEO SCREEN ---
+const VideoScreenContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #000;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+const VideoPlayer = styled.video`
+  width: 90%;
+  max-width: 1000px;
+  border: 2px solid #C09943;
+  border-radius: 8px;
+  box-shadow: 0 0 50px rgba(192, 153, 67, 0.3);
+`;
+
+const CloseVideoButton = styled.button`
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid #C09943;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #C09943;
+    color: black;
+    transform: rotate(90deg);
+  }
+`;
+
+// --- Main Component ---
+
+export default function PathDisplayScreen({ onBack, selectedInterests, selectedTimePeriods, language, user, onProfileClick, onAuthClick, onAddToCollection }) {
   const [path, setPath] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [showPieceModal, setShowPieceModal] = useState(false);
   const [gallerySearches, setGallerySearches] = useState({});
+  
+  // New State for Video
+  // const [showVideo, setShowVideo] = useState(false); // Removed
 
   const isSignedUp = !!user;
-  const isSubscribed = false;
+  const isSubscribed = user?.isSubscribed || false;
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Generate path from all selected periods
-      const allGalleries = [];
-      if (Array.isArray(timePeriods) && timePeriods.length > 0) {
-        timePeriods.forEach(period => {
-          const periodPath = generatePath(period);
-          allGalleries.push(...periodPath);
-        });
-        // Remove duplicates
-        const uniqueGalleries = Array.from(new Map(allGalleries.map(g => [g.id, g])).values());
-        setPath(uniqueGalleries);
+      if (Array.isArray(selectedTimePeriods) && selectedTimePeriods.length > 0) {
+        const recommendedPath = generateAIRecommendedPath(selectedInterests, selectedTimePeriods);
+        setPath(recommendedPath);
+      } else {
+        setPath([]); // Clear path if no time periods selected
       }
       setLoading(false);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [timePeriods]);
+  }, [selectedInterests, selectedTimePeriods]); // Depend on both interests and time periods
 
   const handleSearchInGallery = (galleryId, pieceId) => {
     if (!pieceId.trim()) return;
-
     const piece = searchPieceInGallery(galleryId, pieceId);
     if (piece) {
       setSelectedPiece({ ...piece, gallery: galleryId });
@@ -336,24 +335,17 @@ export default function PathDisplayScreen({ onBack, timePeriods, language, user,
     } else {
       alert(`❌ Piece ID "${pieceId}" not found in ${galleryId}`);
     }
-
     setGallerySearches(prev => ({ ...prev, [galleryId]: '' }));
   };
 
+  // --- UPDATED: Open Video Screen ---
   const handleTakeMeThere = (gallery) => {
-    alert(`🗺️ Navigation Activated!\n\nStarting indoor map guidance to: ${gallery.name}\n\n(BLE Beacon System would activate here)`);
+    alert(`🗺️ Navigating to ${gallery.name} on the museum map...`);
   };
 
   const handleAddToGallery = (piece) => {
+    onAddToCollection(piece.id, piece);
     alert(`✨ Piece Collected!\n\n"${piece.name}" has been added to your gallery.`);
-  };
-
-  const handleNavigateSidebar = (page) => {
-    if (page === 'home') {
-      onBack();
-    } else {
-      alert(`${page.toUpperCase()} feature coming soon!`);
-    }
   };
 
   if (loading) {
@@ -361,24 +353,19 @@ export default function PathDisplayScreen({ onBack, timePeriods, language, user,
       <LoadingContainer>
         <div style={{ textAlign: 'center' }}>
           <Spinner />
-          <p style={{ marginTop: '20px' }}>Generating your journey...</p>
+          <p style={{ marginTop: '20px', color: '#8B6B23' }}>Generating your journey...</p>
         </div>
       </LoadingContainer>
     );
   }
 
+
+
   return (
     <Container>
-      <Sidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        currentPage="galleries"
-        onNavigate={handleNavigateSidebar}
-      />
-
       <MainContent>
         <Header>
-          <MenuButton onClick={() => setSidebarOpen(!sidebarOpen)}>☰</MenuButton>
+          <MenuButton onClick={onProfileClick}>☰</MenuButton>
           <HeaderTitle>🎯 Your Journey</HeaderTitle>
           {user ? (
             <UserBadge onClick={onProfileClick} title={`Click to view ${user.fullName}'s profile`}>
@@ -392,13 +379,13 @@ export default function PathDisplayScreen({ onBack, timePeriods, language, user,
         </Header>
 
         <ScrollContainer>
-          {Array.isArray(timePeriods) && timePeriods.length > 0 && (
-            <div style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px solid #333' }}>
-              <p style={{ color: '#C09943', fontSize: '12px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+          {Array.isArray(selectedTimePeriods) && selectedTimePeriods.length > 0 && (
+            <div style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px solid #D4C5A5' }}>
+              <p style={{ color: '#8B6B23', fontSize: '12px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
                 Selected Periods:
               </p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {timePeriods.map(period => (
+                {selectedTimePeriods.map(period => (
                   <PeriodTag key={period}>{period}</PeriodTag>
                 ))}
               </div>
@@ -406,8 +393,11 @@ export default function PathDisplayScreen({ onBack, timePeriods, language, user,
           )}
 
           {path.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#aaa', paddingTop: '40px' }}>
-              <p>No galleries found</p>
+            <div style={{ textAlign: 'center', color: '#666666', paddingTop: '40px' }}>
+              <p>No galleries found for your selection. Please go back and try different options.</p>
+              <ButtonRow style={{justifyContent: 'center'}}>
+                <BackButton onClick={onBack}>← Back to Time Periods</BackButton>
+              </ButtonRow>
             </div>
           ) : (
             path.map((gallery, index) => (
@@ -426,7 +416,7 @@ export default function PathDisplayScreen({ onBack, timePeriods, language, user,
                 <SearchRow>
                   <SearchInput
                     type="text"
-                    placeholder={`Search ${gallery.id}...`}
+                    placeholder={`Search ${gallery.id} by Piece ID...`}
                     value={gallerySearches[gallery.id] || ''}
                     onChange={(e) => setGallerySearches(prev => ({ ...prev, [gallery.id]: e.target.value }))}
                     onKeyPress={(e) => {
@@ -436,7 +426,7 @@ export default function PathDisplayScreen({ onBack, timePeriods, language, user,
                     }}
                   />
                   <SearchButton onClick={() => handleSearchInGallery(gallery.id, gallerySearches[gallery.id])}>
-                    🔍
+                    🔍 Search
                   </SearchButton>
                 </SearchRow>
 
@@ -459,21 +449,6 @@ export default function PathDisplayScreen({ onBack, timePeriods, language, user,
             isSubscribed={isSubscribed}
           />
         )}
-
-        <Footer>
-          <FooterButton onClick={onBack} title="Go back to time period selection">
-            <span>⬅️</span>
-            <span>Back</span>
-          </FooterButton>
-          <FooterButton onClick={() => window.location.reload()} title="Return to home screen">
-            <span>🏠</span>
-            <span>Home</span>
-          </FooterButton>
-          <FooterButton onClick={user ? onProfileClick : onAuthClick} title={user ? `View ${user.fullName}'s profile` : 'Login or create account'}>
-            <span>👤</span>
-            <span>{user ? 'Profile' : 'Login'}</span>
-          </FooterButton>
-        </Footer>
       </MainContent>
     </Container>
   );

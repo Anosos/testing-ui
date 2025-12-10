@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import HarasChatbot from '../components/HarasChatbot';
 
 const Container = styled.div`
   width: 100%;
@@ -17,8 +18,12 @@ const Header = styled.div`
   left: 0;
   right: 0;
   height: 60px;
-  background: rgba(0, 0, 0, 0.9);
-  border-bottom: 2px solid #C09943;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
+  backdrop-filter: blur(5px); /* Frosted glass effect */
+  border-bottom: 2px solid rgba(192, 153, 67, 0.3); /* Subtle gold-tinted bottom border */
+  border-radius: 0 0 15px 15px; /* Rounded bottom corners */
+  overflow: hidden; /* Ensures blur doesn't extend beyond border */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Depth effect */
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -87,16 +92,47 @@ const Message = styled.div`
 
 const MessageBubble = styled.div`
   background: ${props => (props.isUser ? 'linear-gradient(135deg, #C09943 0%, #a8773f 100%)' : 'rgba(255, 255, 255, 0.1)')};
-  color: ${props => (props.isUser ? '#000' : '#fff')};
+  color: ${props => (props.isUser ? '#000' : '#fff')}; /* Ensure user messages have black text */
   padding: 15px 20px;
   border-radius: 15px;
   max-width: 70%;
   word-wrap: break-word;
-  border: ${props => (props.isUser ? 'none' : '2px solid #C09943')};
+  border: ${props => (props.isUser ? 'none' : '1px solid rgba(192, 153, 67, 0.4)')}; /* Softer border for bot messages */
   line-height: 1.4;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
 
   @media (max-width: 600px) {
     max-width: 85%;
+  }
+`;
+
+const ChoicesContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: ${props => (props.isUser ? 'flex-end' : 'flex-start')};
+`;
+
+const ChatChoice = styled.button`
+  background: rgba(192, 153, 67, 0.2);
+  color: #C09943;
+  border: 1px solid #C09943;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #C09943;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(192, 153, 67, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
@@ -175,54 +211,65 @@ const ModeToggle = styled.div`
 const ModeButton = styled.button`
   flex: 1;
   padding: 10px;
-  background: ${props => (props.active ? '#C09943' : 'rgba(255, 255, 255, 0.1)')};
+  background: ${props => (props.active ? 'linear-gradient(135deg, #C09943 0%, #a8773f 100%)' : 'rgba(255, 255, 255, 0.08)')};
   color: ${props => (props.active ? '#000' : '#fff')};
-  border: 2px solid #C09943;
+  border: ${props => (props.active ? 'none' : '2px solid rgba(192, 153, 67, 0.5)')};
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
+  box-shadow: ${props => (props.active ? '0 4px 10px rgba(192, 153, 67, 0.4)' : 'none')};
 
   &:hover {
-    background: ${props => (props.active ? '#C09943' : 'rgba(192, 153, 67, 0.2)')};
+    background: ${props => (props.active ? 'linear-gradient(135deg, #a8773f 0%, #C09943 100%)' : 'rgba(192, 153, 67, 0.2)')};
+    transform: translateY(-1px);
+    box-shadow: ${props => (props.active ? '0 6px 12px rgba(192, 153, 67, 0.5)' : 'none')};
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
 `;
 
-const WelcomeMessage = styled.div`
-  text-align: center;
-  padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.6);
-`;
-
-const WelcomeIcon = styled.div`
-  font-size: 80px;
-  margin-bottom: 20px;
-`;
-
 const chatbotResponses = {
-  greeting: [
-    'Hello! 👋 Welcome to the GEM Museum AI Assistant. How can I help you today?',
-    'Hi there! 🏛️ I\'m here to help you explore the museum. What would you like to know?',
-    'Welcome! 🎭 Feel free to ask me about artifacts, history, or museum information.',
-  ],
-  artifact: [
-    'That\'s a fascinating artifact! 🖼️ Would you like more information about it?',
-    'Great question! This artifact tells an amazing story. 📖 What else would you like to know?',
-    'I love discussing artifacts! ✨ This one is particularly interesting...',
-  ],
-  tour: [
-    'Our museum offers incredible tours! 🗺️ Would you like to hear about a specific period?',
-    'Tours are a wonderful way to learn! 🎫 Which era interests you most?',
-  ],
-  help: [
-    'I can help you with:\n• Artifact information\n• Museum tours\n• Navigation\n• Collection tips',
-    'How can I assist? You can ask me about:\n• Historical periods\n• Specific artifacts\n• Museum services',
-  ],
-  default: [
-    'That\'s interesting! Can you tell me more? 🤔',
-    'I appreciate your curiosity! Would you like to know more? 📚',
-    'Great question! Let me help you explore. 🔍',
-  ]
+  greeting: {
+    messages: [
+      'Hello! 👋 Welcome to the GEM Museum AI Assistant. How can I help you today?',
+      'Hi there! 🏛️ I\'m here to help you explore the museum. What would you like to know?',
+      'Welcome! 🎭 Feel free to ask me about artifacts, history, or museum information.',
+    ],
+    choices: ['Tell me about artifacts', 'What tours do you offer?', 'Help']
+  },
+  artifact: {
+    messages: [
+      'That\'s a fascinating artifact! 🖼️ Would you like more information about it?',
+      'Great question! This artifact tells an amazing story. 📖 What else would you like to know?',
+      'I love discussing artifacts! ✨ This one is particularly interesting...',
+    ],
+    choices: ['Show me famous artifacts', 'What is its history?', 'Where can I find it?']
+  },
+  tour: {
+    messages: [
+      'Our museum offers incredible tours! 🗺️ Would you like to hear about a specific period?',
+      'Tours are a wonderful way to learn! 🎫 Which era interests you most?',
+    ],
+    choices: ['Ancient Egypt tour', 'Renaissance art tour', 'Modern art tour']
+  },
+  help: {
+    messages: [
+      'I can help you with:\n• Artifact information\n• Museum tours\n• Navigation\n• Collection tips',
+      'How can I assist? You can ask me about:\n• Historical periods\n• Specific artifacts\n• Museum services',
+    ],
+    choices: ['Tell me about artifacts', 'What tours do you offer?', 'Navigate the museum']
+  },
+  default: {
+    messages: [
+      'That\'s interesting! Can you tell me more? 🤔',
+      'I appreciate your curiosity! Would you like to know more? 📚',
+      'Great question! Let me help you explore. 🔍',
+    ],
+    choices: ['Tell me about artifacts', 'What tours do you offer?', 'Help']
+  }
 };
 
 const ChatbotScreen = ({ onBack }) => {
@@ -232,6 +279,7 @@ const ChatbotScreen = ({ onBack }) => {
       text: 'Hello! 👋 Welcome to the GEM Museum AI Assistant. How can I help you today?',
       isUser: false,
       timestamp: new Date(),
+      choices: chatbotResponses.greeting.choices // Initial choices for the greeting
     },
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -277,36 +325,47 @@ const ChatbotScreen = ({ onBack }) => {
 
   const getResponse = (userMessage) => {
     const lowerMessage = userMessage.toLowerCase();
+    let responseCategory = chatbotResponses.default;
 
     if (
       lowerMessage.includes('hello') ||
       lowerMessage.includes('hi') ||
       lowerMessage.includes('hey')
     ) {
-      return chatbotResponses.greeting[Math.floor(Math.random() * chatbotResponses.greeting.length)];
+      responseCategory = chatbotResponses.greeting;
     } else if (
       lowerMessage.includes('artifact') ||
       lowerMessage.includes('statue') ||
-      lowerMessage.includes('ancient')
+      lowerMessage.includes('ancient') ||
+      lowerMessage.includes('famous artifacts') ||
+      lowerMessage.includes('history of artifact') ||
+      lowerMessage.includes('where to find artifact')
     ) {
-      return chatbotResponses.artifact[Math.floor(Math.random() * chatbotResponses.artifact.length)];
+      responseCategory = chatbotResponses.artifact;
     } else if (
       lowerMessage.includes('tour') ||
       lowerMessage.includes('navigate') ||
-      lowerMessage.includes('guide')
+      lowerMessage.includes('guide') ||
+      lowerMessage.includes('ancient egypt tour') ||
+      lowerMessage.includes('renaissance art tour') ||
+      lowerMessage.includes('modern art tour') ||
+      lowerMessage.includes('what tours do you offer') ||
+      lowerMessage.includes('navigate the museum')
     ) {
-      return chatbotResponses.tour[Math.floor(Math.random() * chatbotResponses.tour.length)];
+      responseCategory = chatbotResponses.tour;
     } else if (
       lowerMessage.includes('help') ||
       lowerMessage.includes('what can you do')
     ) {
-      return chatbotResponses.help[Math.floor(Math.random() * chatbotResponses.help.length)];
-    } else {
-      return chatbotResponses.default[Math.floor(Math.random() * chatbotResponses.default.length)];
+      responseCategory = chatbotResponses.help;
     }
+
+    const message = responseCategory.messages[Math.floor(Math.random() * responseCategory.messages.length)];
+    const choices = responseCategory.choices;
+    return { message, choices };
   };
 
-  const handleSendMessage = (messageText = inputValue) => {
+  const handleSendMessage = (messageText = inputValue, isChoice = false) => {
     if (!messageText.trim()) return;
 
     const userMessage = {
@@ -317,20 +376,24 @@ const ChatbotScreen = ({ onBack }) => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInputValue('');
+    if (!isChoice) { // Clear input only if it's not a choice click
+      setInputValue('');
+    }
 
     setTimeout(() => {
+      const { message: botMessageText, choices: botChoices } = getResponse(messageText);
       const botMessage = {
         id: messages.length + 2,
-        text: getResponse(messageText),
+        text: botMessageText,
         isUser: false,
         timestamp: new Date(),
+        choices: botChoices,
       };
       setMessages((prev) => [...prev, botMessage]);
 
       // Text-to-speech for bot response
       if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(botMessage.text);
+        const utterance = new SpeechSynthesisUtterance(botMessageText);
         utterance.rate = 1;
         speechSynthesis.speak(utterance);
       }
@@ -371,22 +434,35 @@ const ChatbotScreen = ({ onBack }) => {
         >
           🎙️ Voice Chat
         </ModeButton>
+        <ModeButton
+          active={mode === 'haras'}
+          onClick={() => setMode('haras')}
+        >
+          🐺 Haras (The Guardian)
+        </ModeButton>
       </ModeToggle>
 
       <MessagesContainer>
-        {messages.length === 1 && (
-          <WelcomeMessage>
-            <WelcomeIcon>🤖</WelcomeIcon>
-            <p>Ask me anything about the museum!</p>
-          </WelcomeMessage>
+        {mode === 'haras' ? (
+          <HarasChatbot />
+        ) : (
+          messages.map((message) => (
+            <Message key={message.id} isUser={message.isUser}>
+              <MessageBubble isUser={message.isUser}>
+                {message.text}
+              </MessageBubble>
+              {!message.isUser && message.choices && message.choices.length > 0 && (
+                <ChoicesContainer isUser={message.isUser}>
+                  {message.choices.map((choice, index) => (
+                    <ChatChoice key={index} onClick={() => handleSendMessage(choice, true)}>
+                      {choice}
+                    </ChatChoice>
+                  ))}
+                </ChoicesContainer>
+              )}
+            </Message>
+          ))
         )}
-        {messages.map((message) => (
-          <Message key={message.id} isUser={message.isUser}>
-            <MessageBubble isUser={message.isUser}>
-              {message.text}
-            </MessageBubble>
-          </Message>
-        ))}
         <div ref={messagesEndRef} />
       </MessagesContainer>
 
@@ -402,7 +478,7 @@ const ChatbotScreen = ({ onBack }) => {
           />
           <SendButton onClick={() => handleSendMessage()}>📤 Send</SendButton>
         </InputSection>
-      ) : (
+      ) : mode === 'voice' && (
         <InputSection>
           <VoiceButton
             isListening={isListening}

@@ -1,53 +1,78 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { TIME_PERIODS } from '../api';
 
 const Container = styled.div`
-  flex: 1;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  width: 100vw;
+  height: 100vh;
+  /* background removed to use global off-white background */
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   padding: 40px 20px;
+  overflow: hidden;
 `;
 
 const Header = styled.h2`
-  color: white;
-  font-size: 32px;
+  color: darkgoldenrod; /* Adjusted for off-white background */
+  font-size: 28px;
   font-weight: bold;
   margin-bottom: 10px;
   text-align: center;
+
+  @media (max-width: 480px) {
+    font-size: 22px;
+    padding: 0 10px;
+  }
 `;
 
 const Subtitle = styled.p`
-  color: #aaaaaa;
+  color: #333333; /* Adjusted for off-white background */
   font-size: 14px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   text-align: center;
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+`;
+
+const SelectionInfo = styled.p`
+  color: #C09943;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 15px;
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
   padding: 20px;
   flex: 1;
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
 `;
 
-const TimePeriodBox = styled.button`
+const PeriodBox = styled.button`
   width: 100%;
-  padding: 30px 20px;
-  border-radius: 15px;
-  background-color: ${props => props.isSelected ? '#C09943' : '#1E1E1E'};
-  border: 2px solid ${props => props.isSelected ? '#FFF' : '#333333'};
+  padding: 20px;
+  border-radius: 12px;
+  background-color: ${props => props.isSelected ? '#C09943' : '#E0E0E0'}; /* Adjusted for off-white background */
+  border: 2px solid ${props => props.isSelected ? '#FFF' : '#999999'}; /* Adjusted for off-white background */
   display: flex;
   flex-direction: column;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: ${props => props.isSelected ? '0 0 20px rgba(192, 153, 67, 0.6)' : 'none'};
   transform: ${props => props.isSelected ? 'scale(1.05)' : 'scale(1)'};
+  position: relative;
 
   &:hover {
     border-color: #C09943;
@@ -59,22 +84,42 @@ const TimePeriodBox = styled.button`
   }
 `;
 
-const TimePeriodIcon = styled.span`
-  font-size: 36px;
-  margin-bottom: 10px;
+const CheckIcon = styled.span`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #4CAF50;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: ${props => props.show ? '1' : '0'};
+  transition: opacity 0.3s ease;
 `;
 
-const TimePeriodLabel = styled.p`
-  color: white;
-  font-size: 16px;
+const PeriodIcon = styled.span`
+  font-size: 32px;
+  margin-bottom: 8px;
+`;
+
+const PeriodLabel = styled.p`
+  color: #333333; /* Adjusted for off-white background */
+  font-size: 13px;
   font-weight: bold;
+  text-align: center;
   margin: 0 0 5px 0;
 `;
 
-const TimePeriodDesc = styled.p`
-  color: ${props => props.isSelected ? '#000' : '#aaa'};
-  font-size: 12px;
+const PeriodDesc = styled.p`
+  color: ${props => props.isSelected ? '#000' : '#666666'}; /* Adjusted for off-white background */
+  font-size: 11px;
   margin: 0;
+  text-align: center;
 `;
 
 const ButtonContainer = styled.div`
@@ -82,14 +127,15 @@ const ButtonContainer = styled.div`
   justify-content: center;
   gap: 15px;
   padding: 20px;
+  flex-wrap: wrap;
 `;
 
 const ContinueButton = styled.button`
-  background-color: ${props => props.disabled ? '#555555' : '#C09943'};
+  background-color: ${props => props.disabled ? '#CCCCCC' : '#C09943'};
   border: 2px solid #C09943;
-  color: ${props => props.disabled ? '#999999' : '#000000'};
-  padding: 15px 40px;
-  font-size: 18px;
+  color: ${props => props.disabled ? '#999999' : '#333333'}; /* Adjusted for light background */
+  padding: 12px 30px;
+  font-size: 16px;
   font-weight: bold;
   border-radius: 10px;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
@@ -99,14 +145,19 @@ const ContinueButton = styled.button`
     box-shadow: 0 0 20px rgba(192, 153, 67, 0.6);
     transform: translateY(-2px);
   }
+
+  @media (max-width: 480px) {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 `;
 
 const BackButton = styled.button`
-  background-color: #333333;
-  border: 2px solid #555555;
-  color: white;
-  padding: 15px 40px;
-  font-size: 18px;
+  background-color: #E0E0E0; /* Adjusted for off-white background */
+  border: 2px solid #999999; /* Adjusted for off-white background */
+  color: #333333; /* Adjusted for off-white background */
+  padding: 12px 30px;
+  font-size: 16px;
   font-weight: bold;
   border-radius: 10px;
   cursor: pointer;
@@ -115,59 +166,83 @@ const BackButton = styled.button`
   &:hover {
     border-color: #C09943;
   }
+
+  @media (max-width: 480px) {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 `;
 
-export default function TimePeriodScreen({ onContinue, onBack }) {
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
+const ClearButton = styled(BackButton)`
+  background-color: #D32F2F;
+  border-color: #D32F2F;
+  color: white; /* Keep white for clear button for contrast */
+  padding: 12px 20px;
+  font-size: 14px;
 
-  const periods = [
-    {
-      key: '2034-1550',
-      label: 'New Kingdom',
-      desc: '1550 - 1070 BCE',
-      icon: '👑',
-      details: 'The age of pharaohs and temples'
-    },
-    {
-      key: '1550-1069',
-      label: 'Middle Kingdom',
-      desc: '2034 - 1550 BCE',
-      icon: '🏰',
-      details: 'An era of stability and prosperity'
-    },
-  ];
+  &:hover {
+    border-color: #FF5722;
+  }
+`;
+
+export default function TimePeriodScreen({ onContinue, onBack }) { // Changed component name here
+  const [selectedPeriods, setSelectedPeriods] = useState([]);
+
+  const togglePeriod = (periodKey) => {
+    setSelectedPeriods(prev => {
+      if (prev.includes(periodKey)) {
+        return prev.filter(p => p !== periodKey);
+      } else {
+        return [...prev, periodKey];
+      }
+    });
+  };
 
   const handleContinue = () => {
-    if (selectedPeriod) {
-      onContinue(selectedPeriod);
+    if (selectedPeriods.length > 0) {
+      onContinue(selectedPeriods);
     }
+  };
+
+  const handleClear = () => {
+    setSelectedPeriods([]);
   };
 
   return (
     <Container>
-      <Header>Which Time Period Fascinates You?</Header>
-      <Subtitle>Select the era you'd like to explore</Subtitle>
+      <Header>Select Time Period(s)</Header>
+      <Subtitle>Choose one or more eras you want to explore</Subtitle>
+      
+      {selectedPeriods.length > 0 && (
+        <SelectionInfo>
+          ✓ {selectedPeriods.length} period{selectedPeriods.length !== 1 ? 's' : ''} selected
+        </SelectionInfo>
+      )}
 
       <Grid>
-        {periods.map(period => (
-          <TimePeriodBox
+        {TIME_PERIODS.map(period => (
+          <PeriodBox
             key={period.key}
-            isSelected={selectedPeriod === period.key}
-            onClick={() => setSelectedPeriod(period.key)}
+            isSelected={selectedPeriods.includes(period.key)}
+            onClick={() => togglePeriod(period.key)}
           >
-            <TimePeriodIcon>{period.icon}</TimePeriodIcon>
-            <TimePeriodLabel>{period.label}</TimePeriodLabel>
-            <TimePeriodDesc isSelected={selectedPeriod === period.key}>
+            <CheckIcon show={selectedPeriods.includes(period.key)}>✓</CheckIcon>
+            <PeriodIcon>{period.icon}</PeriodIcon>
+            <PeriodLabel>{period.label}</PeriodLabel>
+            <PeriodDesc isSelected={selectedPeriods.includes(period.key)}>
               {period.desc}
-            </TimePeriodDesc>
-          </TimePeriodBox>
+            </PeriodDesc>
+          </PeriodBox>
         ))}
       </Grid>
 
       <ButtonContainer>
         <BackButton onClick={onBack}>← Back</BackButton>
-        <ContinueButton disabled={!selectedPeriod} onClick={handleContinue}>
-          Continue →
+        {selectedPeriods.length > 0 && (
+          <ClearButton onClick={handleClear}>Clear All</ClearButton>
+        )}
+        <ContinueButton disabled={selectedPeriods.length === 0} onClick={handleContinue}>
+          Continue → ({selectedPeriods.length})
         </ContinueButton>
       </ButtonContainer>
     </Container>

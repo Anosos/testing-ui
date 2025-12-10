@@ -2,23 +2,15 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
-
-// Dummy data - replace with actual API call
-const dummyArtifact = {
-  id: '12345',
-  name: 'Golden Mask of Tutankhamun',
-  imageUrl: 'https://i.imgur.com/6Zz2jJ5.jpeg', // Using a placeholder image
-  description: 'The iconic death mask of the 18th-dynasty Ancient Egyptian Pharaoh Tutankhamun.',
-  audioSrc: '/audio/tutankhamun.mp3'
-};
+import { getPieceInfo } from '../api'; // Import getPieceInfo
 
 const Container = styled.div`
   width: 100%;
   height: 100vh;
   padding-top: 60px;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  color: #fff;
   overflow-y: auto;
+  color: #fff;
 `;
 
 const Header = styled.div`
@@ -143,19 +135,38 @@ const AudioPlayer = styled.audio`
 `;
 
 
-const SearchByIDResultScreen = () => {
+const SearchByIDResultScreen = ({ isSignedUp, isSubscribed }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, addToCollection } = useContext(AppContext);
 
-  // In a real app, you would fetch data based on the id
-  const artifact = dummyArtifact;
+  const artifact = getPieceInfo(id);
 
   const handleAudioGuide = () => {
-    if (!user || user.role !== 'subscribed') {
-      alert('Please subscribe to access the audio guide.');
+    if (!isSubscribed) {
+      alert('🔒 Audio Guide Locked\n\nAudio guides require an active subscription.\nPlease sign up and subscribe to unlock this feature.');
+      return;
     }
+    alert(`🎧 Playing Audio Guide\n\n"${artifact.name}"\n\nEnjoy learning about this magnificent artifact!`);
   };
+
+  if (!artifact || !artifact.id || artifact.name === 'Unknown Artifact') { // Handle case where artifact is not found
+    return (
+      <Container>
+        <Header>
+          <BackButton onClick={() => navigate(-1)}>⬅️</BackButton>
+          <Title>Artifact Not Found</Title>
+          <NavButton onClick={() => navigate('/home')}>Home</NavButton>
+        </Header>
+        <Content>
+          <Info>
+            <ArtifactName>Artifact with ID "{id}" not found.</ArtifactName>
+            <ArtifactDescription>Please check the ID and try again.</ArtifactDescription>
+          </Info>
+        </Content>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -165,19 +176,19 @@ const SearchByIDResultScreen = () => {
         <NavButton onClick={() => navigate('/home')}>Home</NavButton>
       </Header>
       <Content>
-        <ArtifactImage src={artifact.imageUrl} alt={artifact.name} />
+        <ArtifactImage src={artifact.image} alt={artifact.name} />
         <Info>
           <ArtifactName>{artifact.name}</ArtifactName>
           <ArtifactID>ID: {id}</ArtifactID>
-          <ArtifactDescription>{artifact.description}</ArtifactDescription>
+          <ArtifactDescription>{artifact.info}</ArtifactDescription>
         </Info>
         <ButtonContainer>
-          <ActionButton onClick={() => addToCollection(id, artifact)}>Add to Collection</ActionButton>
-          <ActionButton onClick={handleAudioGuide} disabled={!user || user.role !== 'subscribed'}>
-            {(!user || user.role !== 'subscribed') && '🔒'} Audio Guide
+          <ActionButton onClick={() => addToCollection(id, artifact)}>➕ Add to Collection</ActionButton>
+          <ActionButton onClick={handleAudioGuide} disabled={!isSubscribed}>
+            {!isSubscribed && '🔒'} Audio Guide
           </ActionButton>
         </ButtonContainer>
-        {user && user.role === 'subscribed' && (
+        {isSubscribed && (
           <AudioPlayer controls src={artifact.audioSrc}>
             Your browser does not support the audio element.
           </AudioPlayer>

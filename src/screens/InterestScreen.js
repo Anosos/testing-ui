@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { TIME_PERIODS } from '../api';
+
+const INTEREST_OPTIONS = [
+  { key: 'master_builder', label: 'The Master Builder', icon: '🏗️' },
+  { key: 'royal_heir', label: 'The Royal Heir', icon: '👑' },
+  { key: 'warrior', label: 'The Warrior', icon: '🛡️' },
+  { key: 'highest_priest', label: 'The Highest Priest', icon: '📜' },
+  { key: 'artisan', label: 'The Artisan', icon: '🏺' },
+  { key: 'explorer', label: 'The Explorer', icon: '🗺️' },
+];
 
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   display: flex;
   flex-direction: column;
   padding: 40px 20px;
@@ -13,7 +20,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.h2`
-  color: white;
+  color: darkgoldenrod;
   font-size: 28px;
   font-weight: bold;
   margin-bottom: 10px;
@@ -26,7 +33,7 @@ const Header = styled.h2`
 `;
 
 const Subtitle = styled.p`
-  color: #aaaaaa;
+  color: #333333;
   font-size: 14px;
   margin-bottom: 30px;
   text-align: center;
@@ -60,14 +67,16 @@ const Grid = styled.div`
   overflow-y: auto;
 `;
 
-const PeriodBox = styled.button`
+const InterestBox = styled.button`
   width: 100%;
   padding: 20px;
   border-radius: 12px;
-  background-color: ${props => props.isSelected ? '#C09943' : '#1E1E1E'};
-  border: 2px solid ${props => props.isSelected ? '#FFF' : '#333333'};
+  background-color: ${props => props.isSelected ? '#C09943' : '#E0E0E0'}; /* Adjusted for off-white background */
+  border: 2px solid ${props => props.isSelected ? '#FFF' : '#999999'}; /* Adjusted for off-white background */
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: ${props => props.isSelected ? '0 0 20px rgba(192, 153, 67, 0.6)' : 'none'};
@@ -102,24 +111,17 @@ const CheckIcon = styled.span`
   transition: opacity 0.3s ease;
 `;
 
-const PeriodIcon = styled.span`
+const InterestIcon = styled.span`
   font-size: 32px;
   margin-bottom: 8px;
 `;
 
-const PeriodLabel = styled.p`
-  color: white;
+const InterestLabel = styled.p`
+  color: ${props => props.isSelected ? '#333333' : '#333333'}; /* Adjusted for off-white background */
   font-size: 13px;
   font-weight: bold;
   text-align: center;
-  margin: 0 0 5px 0;
-`;
-
-const PeriodDesc = styled.p`
-  color: ${props => props.isSelected ? '#000' : '#aaa'};
-  font-size: 11px;
   margin: 0;
-  text-align: center;
 `;
 
 const ButtonContainer = styled.div`
@@ -131,9 +133,9 @@ const ButtonContainer = styled.div`
 `;
 
 const ContinueButton = styled.button`
-  background-color: ${props => props.disabled ? '#555555' : '#C09943'};
+  background-color: ${props => props.disabled ? '#CCCCCC' : '#C09943'};
   border: 2px solid #C09943;
-  color: ${props => props.disabled ? '#999999' : '#000000'};
+  color: ${props => props.disabled ? '#999999' : '#333333'};
   padding: 12px 30px;
   font-size: 16px;
   font-weight: bold;
@@ -153,9 +155,9 @@ const ContinueButton = styled.button`
 `;
 
 const BackButton = styled.button`
-  background-color: #333333;
-  border: 2px solid #555555;
-  color: white;
+  background-color: #E0E0E0; /* Adjusted for off-white background */
+  border: 2px solid #999999; /* Adjusted for off-white background */
+  color: #333333; /* Adjusted for off-white background */
   padding: 12px 30px;
   font-size: 16px;
   font-weight: bold;
@@ -176,6 +178,7 @@ const BackButton = styled.button`
 const ClearButton = styled(BackButton)`
   background-color: #D32F2F;
   border-color: #D32F2F;
+  color: white;
   padding: 12px 20px;
   font-size: 14px;
 
@@ -185,63 +188,62 @@ const ClearButton = styled(BackButton)`
 `;
 
 export default function InterestScreen({ onContinue, onBack }) {
-  const [selectedPeriods, setSelectedPeriods] = useState([]);
+  const [selectedInterests, setSelectedInterests] = useState([]);
 
-  const togglePeriod = (periodKey) => {
-    setSelectedPeriods(prev => {
-      if (prev.includes(periodKey)) {
-        return prev.filter(p => p !== periodKey);
+  const toggleInterest = (interestKey) => {
+    setSelectedInterests(prev => {
+      if (prev.includes(interestKey)) {
+        return prev.filter(p => p !== interestKey);
       } else {
-        return [...prev, periodKey];
+        return [...prev, interestKey];
       }
     });
   };
 
   const handleContinue = () => {
-    if (selectedPeriods.length > 0) {
-      onContinue(selectedPeriods);
+    if (selectedInterests.length > 0) {
+      onContinue(selectedInterests);
     }
   };
 
   const handleClear = () => {
-    setSelectedPeriods([]);
+    setSelectedInterests([]);
   };
 
   return (
     <Container>
-      <Header>Select Time Period(s)</Header>
-      <Subtitle>Choose one or more eras you want to explore</Subtitle>
+      <Header>Select Your Interests</Header>
+      <Subtitle>Choose one or more roles that resonate with you</Subtitle>
       
-      {selectedPeriods.length > 0 && (
+      {selectedInterests.length > 0 && (
         <SelectionInfo>
-          ✓ {selectedPeriods.length} period{selectedPeriods.length !== 1 ? 's' : ''} selected
+          ✓ {selectedInterests.length} interest{selectedInterests.length !== 1 ? 's' : ''} selected
         </SelectionInfo>
       )}
 
       <Grid>
-        {TIME_PERIODS.map(period => (
-          <PeriodBox
-            key={period.key}
-            isSelected={selectedPeriods.includes(period.key)}
-            onClick={() => togglePeriod(period.key)}
+        {INTEREST_OPTIONS.map(interest => (
+          <InterestBox
+            key={interest.key}
+            isSelected={selectedInterests.includes(interest.key)}
+            onClick={() => toggleInterest(interest.key)}
           >
-            <CheckIcon show={selectedPeriods.includes(period.key)}>✓</CheckIcon>
-            <PeriodIcon>{period.icon}</PeriodIcon>
-            <PeriodLabel>{period.label}</PeriodLabel>
-            <PeriodDesc isSelected={selectedPeriods.includes(period.key)}>
-              {period.desc}
-            </PeriodDesc>
-          </PeriodBox>
+            <CheckIcon show={selectedInterests.includes(interest.key)}>✓</CheckIcon>
+            <InterestIcon>{interest.icon}</InterestIcon>
+            <InterestLabel isSelected={selectedInterests.includes(interest.key)}>
+              {interest.label}
+            </InterestLabel>
+          </InterestBox>
         ))}
       </Grid>
 
       <ButtonContainer>
         <BackButton onClick={onBack}>← Back</BackButton>
-        {selectedPeriods.length > 0 && (
+        {selectedInterests.length > 0 && (
           <ClearButton onClick={handleClear}>Clear All</ClearButton>
         )}
-        <ContinueButton disabled={selectedPeriods.length === 0} onClick={handleContinue}>
-          Continue → ({selectedPeriods.length})
+        <ContinueButton disabled={selectedInterests.length === 0} onClick={handleContinue}>
+          Continue → ({selectedInterests.length})
         </ContinueButton>
       </ButtonContainer>
     </Container>

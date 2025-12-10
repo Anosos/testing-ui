@@ -63,8 +63,8 @@ const RightGroup = styled.div`
 `;
 
 const GuestBadge = styled.span`
-  color: #ffdca3;
-  background: rgba(192,153,67,0.08);
+  color: #C09943; /* Match gold accent */
+  background: rgba(192, 153, 67, 0.15); /* Slightly darker, semi-transparent gold background */
   padding: 6px 10px;
   border-radius: 8px;
   font-size: 13px;

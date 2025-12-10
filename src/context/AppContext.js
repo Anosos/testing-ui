@@ -71,9 +71,17 @@ export function AppProvider({ children }) {
     setPath(newPath);
   };
 
+  const setUserWithSubscription = (userData) => {
+    if (userData) {
+      setUser({ ...userData, isSubscribed: userData.isSubscribed || false });
+    } else {
+      setUser(null);
+    }
+  };
+
   const value = {
     user,
-    setUser,
+    setUser: setUserWithSubscription, // Use the new wrapper function
     xp,
     addXp,
     collection,

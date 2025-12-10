@@ -7,7 +7,7 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.6); /* Slightly lighter overlay */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,13 +15,13 @@ const Overlay = styled.div`
 `;
 
 const ProfileCard = styled.div`
-  background-color: #1a1a1a;
+  background-color: #FFFFFF; /* Off-white background */
   border: 2px solid #C09943;
   border-radius: 15px;
   padding: 30px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 0 30px rgba(192, 153, 67, 0.5);
+  box-shadow: 0 0 30px rgba(192, 153, 67, 0.3); /* Adjusted shadow */
 
   @media (max-width: 480px) {
     padding: 20px;
@@ -35,7 +35,7 @@ const CloseButton = styled.button`
   right: 15px;
   background-color: transparent;
   border: none;
-  color: #C09943;
+  color: #333333; /* Darker close button */
   font-size: 28px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -55,7 +55,7 @@ const Header = styled.div`
 `;
 
 const Title = styled.h2`
-  color: #C09943;
+  color: darkgoldenrod; /* Adjusted for off-white theme */
   font-size: 24px;
   margin-bottom: 10px;
 
@@ -79,7 +79,7 @@ const SectionTitle = styled.h3`
   font-weight: bold;
   text-transform: uppercase;
   margin-bottom: 10px;
-  border-bottom: 1px solid #333333;
+  border-bottom: 1px solid #E0E0E0; /* Lighter border */
   padding-bottom: 8px;
 `;
 
@@ -88,8 +88,8 @@ const InfoRow = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  color: #ffffff;
-  border-bottom: 1px solid #2a2a2a;
+  color: #333333; /* Darker text */
+  border-bottom: 1px solid #F0F0F0; /* Lighter border */
 
   &:last-child {
     border-bottom: none;
@@ -97,13 +97,13 @@ const InfoRow = styled.div`
 `;
 
 const Label = styled.span`
-  color: #aaaaaa;
+  color: #666666; /* Darker label */
   font-size: 13px;
   font-weight: bold;
 `;
 
 const Value = styled.span`
-  color: #C09943;
+  color: #333333; /* Darker value */
   font-size: 14px;
   font-weight: bold;
   text-align: right;
@@ -144,7 +144,7 @@ const LogoutButton = styled(Button)`
 
 const EditButton = styled(Button)`
   background-color: #C09943;
-  color: #000000;
+  color: #333333; /* Darker text */
   border-color: #C09943;
 
   &:hover {
@@ -156,7 +156,7 @@ const EditButton = styled(Button)`
 const NoUserMessage = styled.div`
   text-align: center;
   padding: 30px 20px;
-  color: #aaaaaa;
+  color: #333333; /* Darker text */
 
   p {
     margin-bottom: 15px;

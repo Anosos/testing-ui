@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+import { AppContext } from '../context/AppContext';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -7,7 +8,7 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.6); /* Slightly lighter overlay */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,7 +16,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background-color: #1E1E1E;
+  background-color: #FFFFFF; /* Off-white background */
   border: 2px solid #C09943;
   border-radius: 15px;
   padding: 30px;
@@ -27,7 +28,7 @@ const ModalContent = styled.div`
 `;
 
 const PieceName = styled.h2`
-  color: #C09943;
+  color: darkgoldenrod; /* Adjusted for off-white theme */
   font-size: 28px;
   font-weight: bold;
   margin: 0 0 10px 0;
@@ -40,7 +41,7 @@ const PieceImage = styled.div`
 `;
 
 const PieceInfo = styled.p`
-  color: #ffffff;
+  color: #333333; /* Adjusted for off-white theme */
   font-size: 14px;
   line-height: 1.6;
   margin: 15px 0;
@@ -48,11 +49,11 @@ const PieceInfo = styled.p`
 `;
 
 const PieceGallery = styled.p`
-  color: #aaa;
+  color: #666666; /* Adjusted for off-white theme */
   font-size: 12px;
   margin: 10px 0;
   padding: 10px;
-  background-color: #2E2E2E;
+  background-color: #EFEFEF; /* Lighter background for the tag */
   border-radius: 5px;
 `;
 
@@ -65,12 +66,12 @@ const ButtonGroup = styled.div`
 
 const StyledButton = styled.button`
   background-color: ${props => {
-    if (props.disabled) return '#444444';
-    if (props.color === 'secondary') return '#555555';
+    if (props.disabled) return '#CCCCCC'; // Lighter disabled background
+    if (props.color === 'secondary') return '#E0E0E0'; // Lighter secondary button
     return '#C09943';
   }};
-  color: ${props => props.disabled ? '#888888' : props.color === 'secondary' ? '#ffffff' : '#000000'};
-  border: 2px solid ${props => props.disabled ? '#555555' : props.color === 'secondary' ? '#555555' : '#C09943'};
+  color: ${props => props.disabled ? '#999999' : props.color === 'secondary' ? '#333333' : '#333333'}; // Adjusted text colors
+  border: 2px solid ${props => props.disabled ? '#999999' : props.color === 'secondary' ? '#999999' : '#C09943'}; // Adjusted border colors
   padding: 12px;
   border-radius: 8px;
   font-weight: bold;
@@ -89,16 +90,18 @@ const StyledButton = styled.button`
 `;
 
 const WarningMessage = styled.p`
-  color: #FF9800;
+  color: #D32F2F; /* More prominent warning color */
   font-size: 12px;
   margin-top: 10px;
   padding: 10px;
-  background-color: rgba(255, 152, 0, 0.1);
+  background-color: rgba(211, 47, 47, 0.1); /* Lighter background for warning */
   border-radius: 5px;
-  border-left: 3px solid #FF9800;
+  border-left: 3px solid #D32F2F;
 `;
 
 export default function PieceCardModal({ piece, onClose, onAdd, isSignedUp, isSubscribed }) {
+  const { xp, collection, visitedPieces } = useContext(AppContext); // Use AppContext
+
   if (!piece) return null;
 
   const handleAudioGuide = () => {
@@ -114,7 +117,7 @@ export default function PieceCardModal({ piece, onClose, onAdd, isSignedUp, isSu
       alert('📝 Sign Up Required\n\nYou must sign up to save your collected pieces and generate the GEM Wrap summary.');
       return;
     }
-    alert('✨ Generating your GEM Wrap...\n\nYour personalized journey summary is being created.');
+    alert('✨ Generating your GEM Wrap...\n\nYour personalized museum experience summary is being created.');
   };
 
   const handleGenerateWrap = () => {
@@ -122,7 +125,18 @@ export default function PieceCardModal({ piece, onClose, onAdd, isSignedUp, isSu
       alert('📝 Sign Up Required\n\nYou must sign up to generate your GEM Wrap journey summary.');
       return;
     }
-    alert('📋 GEM Wrap Generated!\n\nYour personalized museum experience summary is ready.');
+
+    const wrapSummary = `
+📋 GEM Wrap Summary!
+----------------------
+🌟 Total XP: ${xp}
+🏛️ Pieces Collected: ${collection.length}
+🚶‍♂️ Pieces Visited: ${visitedPieces.length}
+
+Your journey through the Grand Egyptian Museum has been unique!
+Continue exploring to enrich your experience.
+    `;
+    alert(wrapSummary);
   };
 
   return (

@@ -135,7 +135,7 @@ export default function HomeScreen() {
                     <h3>{gallery.name}</h3>
                     <p>Crowd Density: <CrowdStatusBadge status={gallery.crowdStatus}>{gallery.crowdStatus}</CrowdStatusBadge></p>
                   </GalleryInfo>
-                  <TakeMeThereButton>Take Me There</TakeMeThereButton>
+                  <TakeMeThereButton onClick={() => window.open('/tour.mp4.mp4', '_blank')}>Take Me There</TakeMeThereButton>
                 </GalleryCard>
               ))}
             </PathList>

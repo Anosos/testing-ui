@@ -5,7 +5,7 @@ import { SUPPORTED_LANGUAGES } from '../api';
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  /* background removed to use global off-white background */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -15,12 +15,12 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #C09943;
+  color: darkgoldenrod; /* Adjusted for off-white background */
   font-size: 48px;
   font-weight: bold;
   margin-bottom: 10px;
   text-align: center;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Adjusted shadow for light background */
 
   @media (max-width: 480px) {
     font-size: 36px;
@@ -28,7 +28,7 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  color: #ffffff;
+  color: #333333; /* Adjusted for off-white background */
   font-size: 16px;
   margin-bottom: 40px;
   text-align: center;
@@ -56,7 +56,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  color: #C09943;
+  color: darkgoldenrod; /* Adjusted for off-white background */
   font-weight: bold;
   font-size: 16px;
 
@@ -66,9 +66,9 @@ const Label = styled.label`
 `;
 
 const LanguageSelect = styled.select`
-  background-color: #333333;
-  border: 2px solid #555555;
-  color: #ffffff;
+  background-color: #E0E0E0; /* Adjusted for off-white background */
+  border: 2px solid #999999; /* Adjusted for off-white background */
+  color: #333333; /* Adjusted for off-white background */
   padding: 12px 15px;
   border-radius: 8px;
   font-size: 16px;
@@ -88,8 +88,8 @@ const LanguageSelect = styled.select`
   }
 
   option {
-    background-color: #333333;
-    color: #ffffff;
+    background-color: #E0E0E0; /* Adjusted for off-white background */
+    color: #333333; /* Adjusted for off-white background */
     padding: 10px;
   }
 
@@ -100,9 +100,9 @@ const LanguageSelect = styled.select`
 `;
 
 const ContinueButton = styled.button`
-  background-color: ${props => props.disabled ? '#555555' : '#C09943'};
+  background-color: ${props => props.disabled ? '#CCCCCC' : '#C09943'}; /* Adjusted for light background */
   border: 2px solid #C09943;
-  color: ${props => props.disabled ? '#999999' : '#000000'};
+  color: ${props => props.disabled ? '#999999' : '#333333'}; /* Adjusted for light background */
   padding: 15px 40px;
   font-size: 18px;
   font-weight: bold;

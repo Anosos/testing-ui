@@ -182,6 +182,43 @@ const GALLERY_PIECES = {
   ],
 };
 
+// Flatten all gallery pieces into a single array for easier searching
+export const ARTIFACTS_DB = Object.values(GALLERY_PIECES).flat();
+
+// Function to determine the category of a piece based on its name
+export const getCategoryForPiece = (piece) => {
+  const nameLower = piece.name.toLowerCase();
+  if (nameLower.includes('mask') || nameLower.includes('throne') || nameLower.includes('diadem') || nameLower.includes('scepter')) {
+    return 'Royal Regalia';
+  }
+  if (nameLower.includes('scribe') || nameLower.includes('papyrus') || nameLower.includes('hieroglyphic') || nameLower.includes('tablet') || nameLower.includes('records') || nameLower.includes('documents')) {
+    return 'Writing & Administration';
+  }
+  if (nameLower.includes('sphinx') || nameLower.includes('statue') || nameLower.includes('relief')) {
+    return 'Sculpture & Art';
+  }
+  if (nameLower.includes('vessel') || nameLower.includes('pottery') || nameLower.includes('loom') || nameLower.includes('tools')) {
+    return 'Daily Life & Crafts';
+  }
+  if (nameLower.includes('jar') || nameLower.includes('sarcophagus') || nameLower.includes('mummy')) {
+    return 'Funerary & Burial';
+  }
+  if (nameLower.includes('ritual') || nameLower.includes('incense') || nameLower.includes('altar') || nameLower.includes('temple') || nameLower.includes('isis')) {
+    return 'Religion & Beliefs';
+  }
+  if (nameLower.includes('map') || nameLower.includes('astronomical') || nameLower.includes('star') || nameLower.includes('clock')) {
+    return 'Science & Astronomy';
+  }
+  if (nameLower.includes('military') || nameLower.includes('chariot') || nameLower.includes('axe') || nameLower.includes('shield') || nameLower.includes('spear')) {
+    return 'Military & Warfare';
+  }
+  if (nameLower.includes('trade') || nameLower.includes('merchant') || nameLower.includes('goods') || nameLower.includes('weights')) {
+    return 'Trade & Commerce';
+  }
+  return 'General Artifact'; // Default category if no keywords match
+
+};
+
 // 7. GALLERY DESCRIPTIONS
 const getGalleryDescription = (id) => {
   const descriptions = {
@@ -249,4 +286,37 @@ export const getPieceInfo = (pieceId) => {
     image: '❓',
     gallery: 'Unknown'
   };
+};
+
+// 12. GENERATE AI RECOMMENDED PATH
+export const generateAIRecommendedPath = (selectedInterests, selectedTimePeriods) => {
+  let combinedGalleries = [];
+
+  // Combine galleries from all selected time periods
+  selectedTimePeriods.forEach(periodKey => {
+    const periodGalleries = MASTER_PATHS[periodKey];
+    if (periodGalleries) {
+      combinedGalleries = [...combinedGalleries, ...periodGalleries];
+    }
+  });
+
+  // Remove duplicates and create full gallery objects
+  const uniqueGalleries = Array.from(new Set(combinedGalleries));
+
+  // Construct full gallery objects with crowd data, name, description, and pieces
+  const recommendedPath = uniqueGalleries
+    .map(id => ({
+      id: id,
+      crowd: CROWD_DATA[id] || 0, // Default to 0 if no crowd data
+      name: `${id} - ${GALLERY_NAMES[id] || 'Exhibit Hall'}`,
+      description: getGalleryDescription(id),
+      pieces: GALLERY_PIECES[id] || [],
+    }))
+    .sort((a, b) => a.crowd - b.crowd); // Sort by crowd, least crowded first
+
+  // Note: For a more advanced AI, interests could be used to
+  // filter specific pieces within galleries or reorder galleries based on interest relevance.
+  // For this mock, the path is primarily driven by time periods and then sorted by crowd.
+
+  return recommendedPath;
 };
