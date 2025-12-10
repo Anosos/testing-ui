@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>GEM Nexus | Grand Egyptian Museum</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cairo:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-screen">
+        <h1 class="logo-large">GEM NEXUS</h1>
+        <p class="subtitle">Digital Companion</p>
+        <p id="loginError" class="error-msg"></p>
+        
+        <input type="email" id="emailInput" class="login-input" placeholder="Email Address">
+        <input type="password" id="passInput" class="login-input" placeholder="Password">
+        
+        <button id="loginBtn" class="btn-primary">Login 🔐</button>
+        <p class="footer-text">Powered by Google Firebase</p>
+    </div>
+
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-user-circle user-icon"></i>
+            <h3 id="userEmailDisplay">Visitor</h3>
+            <span class="badge">Standard Ticket</span>
+        </div>
+        <div class="sidebar-item active" onclick="nav('home')"><i class="fas fa-home"></i> Dashboard</div>
+        <div class="sidebar-item" onclick="nav('map')"><i class="fas fa-map-marked-alt"></i> Interactive Map</div>
+        <div class="sidebar-item" onclick="nav('scanner')"><i class="fas fa-qrcode"></i> AI Scanner</div>
+        <div class="sidebar-item" onclick="nav('voice')"><i class="fas fa-microphone"></i> Voice Guide</div>
+        <div class="sidebar-item logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+    </div>
+
+    <div class="top-bar">
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+        <div class="logo">GEM NEXUS</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <div id="home" class="screen active">
+        <div class="content-padding">
+            <h2 class="welcome-text">Welcome Back.</h2>
+            
+            <div class="card tour-card" onclick="nav('map')">
+                <div>
+                    <h3>Start Navigation</h3>
+                    <p>Continue your journey</p>
+                </div>
+                <div class="icon-circle"><i class="fas fa-location-arrow"></i></div>
+            </div>
+
+            <div class="grid-menu">
+                <div class="card center-card" onclick="nav('scanner')">
+                    <i class="fas fa-qrcode big-icon"></i>
+                    <div>Scanner</div>
+                </div>
+                <div class="card center-card" onclick="nav('voice')">
+                    <i class="fas fa-microphone big-icon"></i>
+                    <div>Voice AI</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map" class="screen">
+        <div class="map-container">
+            <div class="map-controls">
+                <div class="pill active" id="btn-hall" onclick="switchFloor('hall')">Grand Hall</div>
+                <div class="pill" id="btn-caves" onclick="switchFloor('caves')">Caves</div>
+            </div>
+
+            <div class="map-view" id="mapWrapper">
+                <div class="map-inner">
+                    <img src="map-building.jpg" id="mapImage" class="map-img" alt="Museum Map">
+                    
+                    <div id="userLocation" class="user-marker"><div class="pulse"></div></div>
+                </div>
+            </div>
+
+            <div class="nav-panel">
+                <div class="nav-header">
+                    <div>
+                        <span class="label">CURRENT LOCATION</span>
+                        <div class="value" id="currentStepName">Entrance</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="label">NEXT STOP</span>
+                        <div class="value gold" id="nextStepName">Ramses Statue</div>
+                    </div>
+                </div>
+                <button id="walkBtn" class="btn-primary" onclick="moveUser()">
+                    <i class="fas fa-walking"></i> Walk to Next Stop
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scanner" class="screen">
+        <div class="center-content">
+            <h2>AI Scanner</h2>
+            <div class="camera-box">
+                <div class="laser"></div>
+                <i class="fas fa-camera camera-icon"></i>
+            </div>
+            <button class="btn-primary" onclick="alert('Analysis: Tutankhamun Mask')">Scan Object</button>
+        </div>
+    </div>
+
+    <div id="voice" class="screen">
+        <div class="center-content">
+            <div class="mic-circle"><i class="fas fa-microphone"></i></div>
+            <h2>Listening...</h2>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
